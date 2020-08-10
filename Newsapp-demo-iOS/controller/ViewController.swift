@@ -11,14 +11,24 @@ import RealmSwift
 
 class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var themeSwitch: UISwitch!
+    var tabBar: UITabBar?
     var news = [News]()
     var newsManager = NewsManager()
     override func viewDidLoad() {
         super.viewDidLoad()
         //print(Realm.Configuration.defaultConfiguration.fileURL ?? nil)
         // Do any additional setup after loading the view.
+        tabBar = self.tabBarController?.tabBar
     }
     override func viewWillAppear(_ animated: Bool) {
+        let isThemeSelected = UserDefaults.standard.bool(forKey: "isDarkTheme")
+        changeTheme(isDarkTheme: isThemeSelected)
+        if isThemeSelected {
+            themeSwitch?.isOn = true
+        } else {
+             themeSwitch?.isOn = false
+        }
         tableView.dataSource = self
         newsManager.delegate = self
         if let restorationId = self.restorationIdentifier {
@@ -36,6 +46,22 @@ class ViewController: UIViewController {
         let selectedNews = news[tableView.indexPathForSelectedRow!.row]
         let detailVc = segue.destination as? DetailNewsViewController
         detailVc?.newsItem = selectedNews
+    }
+    @IBAction func onThemeChanged(_ sender: UISwitch) {
+        changeTheme(isDarkTheme: sender.isOn)
+    }
+    func changeTheme(isDarkTheme: Bool = false) {
+        if isDarkTheme {
+            UserDefaults.standard.set(isDarkTheme, forKey: "isDarkTheme")
+            overrideUserInterfaceStyle = .dark
+            tabBar?.tintColor = UIColor.white
+            tabBar?.barTintColor = UIColor.black
+        } else {
+            UserDefaults.standard.set(isDarkTheme, forKey: "isDarkTheme")
+            overrideUserInterfaceStyle = .light
+            tabBar?.tintColor = UIColor.black
+            tabBar?.barTintColor = UIColor.white
+        }
     }
 }
 
